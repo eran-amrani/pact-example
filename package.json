@@ -1,0 +1,25 @@
+{
+  "name": "pact-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node Provider/provider.js -d",
+    "pact:setup:env": "docker compose -f docker-compose-pact.yml up -d",
+    "pact:consumer:test": "jest --no-coverage --ci -c=jest.config.pact.js",
+    "pact:provider:verify": "jest --no-coverage --ci --testRegex=\"(/__tests__/.*|(.|/)(Provider/.*.pact.test.js))$\"",
+    "pact:publish": "pact-broker publish ./pacts --consumer-app-version $(git rev-parse --short HEAD) --broker-base-url http://localhost:9292",
+    "pact:can-i-deploy": "pact-broker can-i-deploy --pacticipant ConsumerService --version $(git rev-parse --short HEAD) --broker-base-url http://localhost:9292"
+  },
+  "author": "Eran Amrani",
+  "license": "ISC",
+  "devDependencies": {
+    "@pact-foundation/pact": "^13.1.4",
+    "@pact-foundation/pact-node": "^10.18.0",
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "express": "^4.21.1"
+  }
+}
