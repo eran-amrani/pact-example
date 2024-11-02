@@ -1,0 +1,60 @@
+name: Pact Flow
+
+on:
+  pull_request:
+    types:
+      - edited
+      - opened
+      - synchronize
+      - reopened
+
+env:
+  NPM_TOKEN: ${{ secrets.NPM_ARTIFACTORY_TOKEN }}
+
+jobs:
+  pact-flow:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Create .npmrc file
+        shell: bash
+        run: |
+          printf \
+          "_auth = ${{ secrets.NPM_ARTIFACTORY_TOKEN }}\n\
+          always-auth = true\n\
+          registry = https://ironsrc.jfrog.io/ironsrc/api/npm/npm-virtual" > ~/.npmrc
+
+      - name: Install npm dependencies
+        shell: bash
+        run: npm config fix && npm ci
+
+      - name: Set up Pact Environment
+        run: npm run pact:setup:env
+
+      - name: List containers
+        if: always()
+        shell: bash
+        run: docker ps -a --format "table {{.ID}}\t{{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+      - name: Run Consumer Tests
+        run: npm run pact:consumer:test
+
+      - name: Publish Pacts
+        run: npm run pact:publish
+
+      - name: Verify Pacts
+        run: npm run pact:provider:verify
+
+      - name: Can I Deploy?
+        run: npm run pact:can-i-deploy
