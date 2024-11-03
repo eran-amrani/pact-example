@@ -12,14 +12,14 @@ node Consumer/consumer.js
 ```
 
 # Expected Output
-When you run the client.js script, it will make an HTTP GET request to the http://localhost:3000/user endpoint and print the following output to the console (assuming the server is running):
+When you run the client.js script, it will make an HTTP GET request to the http://localhost:5000/user endpoint and print the following output to the console (assuming the server is running):
 ```json
 { 
-    message: 'Hello, John Doe', 
-    user: { 
-      id: 1, 
-      name: 'John Doe', 
-      email: 'johndoe@example.com'
+    "message": "Hello, John Doe", 
+    "user": { 
+      "id": 1, 
+      "name": "John Doe", 
+      "email": "johndoe@example.com"
     } 
 }
 
